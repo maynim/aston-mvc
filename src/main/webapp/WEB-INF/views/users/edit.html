@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update person</title>
+    <style>
+        .nav {
+            overflow: hidden;
+            background-color: #333;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<br>
+<form th:method="PATCH" th:action="@{/users/{id}(id=${user.getId()})}" th:object="${user}">
+    <label for="email">Enter email: </label>
+    <input type="text" th:field="*{email}" id="email"/>
+    <br>
+    <label for="username">Enter username: </label>
+    <input type="text" th:field="*{username}" id="username"/>
+    <br>
+    <label for="birthDate">Enter birth date: </label>
+    <input type="date" th:field="*{birthDate}" id="birthDate"/>
+    <br>
+    <label for="firstName">Enter first name: </label>
+    <input type="text" th:field="*{firstName}" id="firstName"/>
+    <br>
+    <label for="lastName">Enter last name: </label>
+    <input type="text" th:field="*{lastName}" id="lastName"/>
+    <br/>
+    <input type="submit" value="Update!"/>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border-radius: 5px;
+            overflow: hidden;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        th, td {
+            border: 2px solid black;
+            padding: 5px;
+        }
+        .delete-button, .edit-button {
+            display: inline-block;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .delete-button {
+            background-color: red;
+        }
+        .create-button {
+            display: inline-block;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .nav {
+            overflow: hidden;
+            background-color: #333;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<br>
+<button onclick="location.href='/notes/new'" class="create-button">Create new note</button>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Content</th>
+        <th>Author username</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="note : ${notes}">
+        <td th:text="${note.getId()}"></td>
+        <td>
+            <a th:href="@{/notes/{id}(id=${note.getId()})}"><span th:text="${note.getName()}"></span></a>
+        </td>
+        <td th:text="${note.getContent()}"></td>
+        <td>
+            <a th:href="@{/users/{id}(id=${note.getUser().getId()})}"><span th:text="${note.getUser().getUsername()}"></span></a>
+        </td>
+        <td>
+            <form th:action="@{/notes/{id}(id=${note.getId()})}" th:method="delete" style="display: inline-block;">
+                <input type="hidden" name="id" th:value="${note.getId()}" />
+                <button type="submit" class="delete-button">Delete</button>
+            </form>
+            <a th:href="@{/notes/{id}/edit(id=${note.getId()})}" style="display: inline-block;">
+                <button class="edit-button">Edit</button>
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<hr/>
+
+
+</body>
+</html>

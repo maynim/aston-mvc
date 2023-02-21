@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Show</title>
+    <style>
+        .nav {
+            overflow: hidden;
+            background-color: #333;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<br>
+<ul>
+    <li th:text="'ID: ' + ${user.getId()}"></li>
+    <li th:text="'Email: ' + ${user.getEmail()}"></li>
+    <li th:text="'Birth date: ' + ${user.getBirthDate()}"></li>
+    <li th:text="'First name: ' + ${user.getFirstName()}"></li>
+    <li th:text="'Last name: ' + ${user.getLastName()}"></li>
+    <li>
+        Roles:
+        <span th:each="role : ${user.getRoles()}" th:text="${role.getName()+' '}"></span>
+
+        <span th:if="${#lists.isEmpty(user.getRoles())}">None</span>
+    </li>
+</ul>
+<a th:href="@{/users/{id}/set-roles(id=${user.getId()})}">
+    <button class="edit-button">Add role</button>
+</a>
+</body>
+</html>

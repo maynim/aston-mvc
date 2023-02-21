@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Show</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border-radius: 5px;
+            overflow: hidden;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        th, td {
+            border: 2px solid black;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        .nav {
+            overflow: hidden;
+            background-color: #333;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<br>
+<p th:text="${note.getName()}">VALUE</p>
+<p th:text="${note.getContent()}">VALUE</p>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Url</th>
+    </tr>
+    </thead>
+    <p>Files:</p>
+    <tbody>
+    <tr th:each="file : ${files}">
+        <td th:text="${file.getName()}"></td>
+        <td th:text="${file.getUrl()}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

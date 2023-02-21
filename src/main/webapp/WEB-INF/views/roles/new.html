@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update person</title>
+    <style>
+        .nav {
+            overflow: hidden;
+            background-color: #333;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<form th:method="POST" th:action="@{/roles}" th:object="${role}">
+    <label for="name">Enter name: </label>
+    <input type="text" th:field="*{name}" id="name"/>
+    <br>
+    <label for="description">Enter description: </label>
+    <input type="text" th:field="*{description}" id="description"/>
+    <br>
+    <input type="submit" value="Create!"/>
+</form>
+
+</body>
+</html>

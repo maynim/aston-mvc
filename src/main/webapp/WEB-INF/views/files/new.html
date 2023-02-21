@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create a Name and Content Field</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        label, input, textarea, select {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+         .nav {
+             overflow: hidden;
+             background-color: #333;
+             font-family: "Segoe UI", Arial, sans-serif;
+         }
+        .nav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/users">Users</a>
+    <a href="/roles">Roles</a>
+    <a href="/user-roles">User roles</a>
+    <a href="/notes">Notes</a>
+    <a href="/files">Files</a>
+</div>
+<br>
+<form th:method="POST" th:action="@{/files}" th:object="${file}">
+    <label for="name">Enter name: </label>
+    <input type="text" th:field="*{name}" id="name"/>
+    <br>
+    <label for="url">Enter url: </label>
+    <input id="url" name="url" th:text="*{url}" >
+    <br>
+    <label for="note_name">Select note: </label>
+            <select id = "note_name" th:field="*{note.id}">
+                <option th:each="note : ${notes}"
+                        th:text="${note.getName()}"
+                        th:value="${note.getId()}">
+            </select>
+    <br>
+    <input type="submit" value="Create!"/>
+</form>
+
+</body>
+</html>
