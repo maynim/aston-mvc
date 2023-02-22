@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.maynim.astonmvc.model.Role;
-import ru.maynim.astonmvc.model.User;
+import ru.maynim.astonmvc.entity.Role;
+import ru.maynim.astonmvc.entity.User;
 import ru.maynim.astonmvc.repository.RoleRepository;
 import ru.maynim.astonmvc.repository.UserRepository;
 

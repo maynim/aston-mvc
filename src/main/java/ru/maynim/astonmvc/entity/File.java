@@ -1,4 +1,4 @@
-package ru.maynim.astonmvc.model;
+package ru.maynim.astonmvc.entity;
 
 import lombok.*;
 
@@ -9,9 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Note {
+public class File {
     private long id;
     private String name;
-    private String content;
-    private User user;
+    private String url;
+    private Note note;
 }

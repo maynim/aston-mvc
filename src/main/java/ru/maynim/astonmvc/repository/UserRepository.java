@@ -1,8 +1,8 @@
 package ru.maynim.astonmvc.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.maynim.astonmvc.model.Role;
-import ru.maynim.astonmvc.model.User;
+import ru.maynim.astonmvc.entity.Role;
+import ru.maynim.astonmvc.entity.User;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package ru.maynim.astonmvc.repository;
 
-import ru.maynim.astonmvc.model.Role;
+import ru.maynim.astonmvc.entity.Role;
 
 import java.util.List;
 import java.util.Optional;

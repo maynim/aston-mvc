@@ -1,4 +1,4 @@
-package ru.maynim.astonmvc.repository.impl.jdbc;
+package ru.maynim.astonmvc.repository.impl.hibernate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class FileRepositoryJdbcImpl implements FileRepository {
+public class FileRepositoryHibernateImpl implements FileRepository {
 
     private final Connection connection;
 

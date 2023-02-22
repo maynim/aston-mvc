@@ -1,6 +1,6 @@
 package ru.maynim.astonmvc.repository;
 
-import ru.maynim.astonmvc.model.File;
+import ru.maynim.astonmvc.entity.File;
 
 import java.util.List;
 import java.util.Optional;

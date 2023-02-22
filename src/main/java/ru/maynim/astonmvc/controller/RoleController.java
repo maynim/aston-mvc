@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.maynim.astonmvc.model.Role;
+import ru.maynim.astonmvc.entity.Role;
 import ru.maynim.astonmvc.repository.RoleRepository;
 
 @Controller

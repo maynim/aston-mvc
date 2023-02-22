@@ -1,4 +1,4 @@
-package ru.maynim.astonmvc.model;
+package ru.maynim.astonmvc.entity;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;

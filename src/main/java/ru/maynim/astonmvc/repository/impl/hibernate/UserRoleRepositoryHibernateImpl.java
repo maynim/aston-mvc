@@ -1,4 +1,4 @@
-package ru.maynim.astonmvc.repository.impl.jdbc;
+package ru.maynim.astonmvc.repository.impl.hibernate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 @Component
 @RequiredArgsConstructor
-public class UserRoleRepositoryJdbcImpl implements UserRoleRepository {
+public class UserRoleRepositoryHibernateImpl implements UserRoleRepository {
 
     private final Connection connection;
 

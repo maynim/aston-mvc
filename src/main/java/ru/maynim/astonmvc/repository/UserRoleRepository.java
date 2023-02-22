@@ -1,6 +1,6 @@
 package ru.maynim.astonmvc.repository;
 
-import ru.maynim.astonmvc.model.User;
+import ru.maynim.astonmvc.entity.User;
 
 public interface UserRoleRepository {
 
