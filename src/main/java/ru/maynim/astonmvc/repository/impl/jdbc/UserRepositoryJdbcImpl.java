@@ -1,4 +1,4 @@
-package ru.maynim.astonmvc.repository.impl;
+package ru.maynim.astonmvc.repository.impl.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
