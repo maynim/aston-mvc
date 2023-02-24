@@ -72,16 +72,18 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="user : ${users}">
+    <th:block th:each="user : ${users}">
+    <tr th:each="role : ${user.getRoles()}">
         <td th:text="${user.getUsername()}"></td>
-        <td th:text="${user.getRoles().get(0).getName()}"></td>
+        <td th:text="${role.getName()}"></td>
         <td>
-            <form th:action="@{/user-roles/{user-id}-{role-id}(user-id=${user.getId()}, role-id=${user.getRoles().get(0).getId()})}" th:method="delete" style="display: inline-block;">
+            <form th:action="@{/user-roles/{user-id}-{role-id}(user-id=${user.getId()}, role-id=${role.getId()})}" th:method="delete" style="display: inline-block;">
                 <input type="hidden" name="id" th:value="${user.getId()}" />
                 <button type="submit" class="delete-button">Delete</button>
             </form>
         </td>
     </tr>
+    </th:block>
     </tbody>
 </table>
 

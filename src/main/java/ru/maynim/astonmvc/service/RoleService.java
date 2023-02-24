@@ -1,16 +1,16 @@
-package ru.maynim.astonmvc.repository;
+package ru.maynim.astonmvc.service;
 
 import ru.maynim.astonmvc.entity.Role;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface RoleRepository {
+public interface RoleService {
+
     List<Role> findAllWithUsers();
 
-    Optional<Role> findById(long id);
+    Role findById(long id);
 
-    int update(long id, Role role);
+    void update(long id, Role role);
 
     void deleteById(long id);
 

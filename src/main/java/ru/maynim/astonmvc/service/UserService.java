@@ -1,20 +1,17 @@
-package ru.maynim.astonmvc.repository;
+package ru.maynim.astonmvc.service;
 
-import org.springframework.stereotype.Repository;
 import ru.maynim.astonmvc.entity.Role;
 import ru.maynim.astonmvc.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
-@Repository
-public interface UserRepository {
+public interface UserService {
 
     List<User> findAll();
 
-    Optional<User> findById(long id);
+    User findById(long id);
 
-    int update(long id, User user);
+    void update(long id, User user);
 
     void deleteById(long id);
 
@@ -22,7 +19,7 @@ public interface UserRepository {
 
     List<User> findAllWithRoles();
 
-    Optional<User> findByIdWithRoles(long id);
+    User findByIdWithRoles(long id);
 
     void addRole(long id, Role role);
 

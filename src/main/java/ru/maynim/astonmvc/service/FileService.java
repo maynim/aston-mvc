@@ -1,17 +1,15 @@
-package ru.maynim.astonmvc.repository;
+package ru.maynim.astonmvc.service;
 
 import ru.maynim.astonmvc.entity.File;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface FileRepository {
-
+public interface FileService {
     List<File> findAllWithNotes();
 
-    Optional<File> findById(long id);
+    File findById(long id);
 
-    int update(long id, File file);
+    void update(long id, File file);
 
     void deleteById(long id);
 
