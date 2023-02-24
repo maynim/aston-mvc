@@ -49,16 +49,30 @@ public class FileRepositoryHibernateImpl implements FileRepository {
     }
 
     @Override
-    public void update(long id, File file) {
+    public int update(long id, File file) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            File fileToUpdate = session.get(File.class, id);
-            fileToUpdate.setName(file.getName());
-            fileToUpdate.setUrl(file.getUrl());
-            session.update(fileToUpdate);
+                int updatedRows = session.createQuery(
+                                "update File f " +
+                                        "set name = :name, " +
+                                        "url = :url " +
+                                        "where f.id = :id"
+                        )
+                        .setParameter("name", file.getName())
+                        .setParameter("url", file.getUrl())
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+
+                return updatedRows;
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 

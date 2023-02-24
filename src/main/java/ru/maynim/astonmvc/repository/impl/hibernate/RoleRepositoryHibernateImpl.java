@@ -48,16 +48,30 @@ public class RoleRepositoryHibernateImpl implements RoleRepository {
     }
 
     @Override
-    public void update(long id, Role role) {
+    public int update(long id, Role role) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            Role roleToUpdate = session.get(Role.class, id);
-            roleToUpdate.setName(role.getName());
-            roleToUpdate.setDescription(role.getDescription());
-            session.update(roleToUpdate);
+                int updatedRows = session.createQuery(
+                                "update Role r " +
+                                        "set name = :name, " +
+                                        "description = :description " +
+                                        "where r.id = :id"
+                        )
+                        .setParameter("name", role.getName())
+                        .setParameter("description", role.getDescription())
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+
+                return updatedRows;
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
@@ -83,5 +97,19 @@ public class RoleRepositoryHibernateImpl implements RoleRepository {
 
             session.getTransaction().commit();
         }
+    }
+
+    @Override
+    public List<Role> findAll() {
+        List<Role> findRoleList;
+        try (Session session = sessionFactory.openSession()) {
+
+            session.beginTransaction();
+
+            findRoleList = session.createQuery("select r from Role r", Role.class).getResultList();
+
+            session.getTransaction().commit();
+        }
+        return findRoleList;
     }
 }

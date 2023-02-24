@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import ru.maynim.astonmvc.entity.Note;
 import ru.maynim.astonmvc.repository.NoteRepository;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class NoteRepositoryHibernateImpl implements NoteRepository {
 
-    private final Connection connection;
     private final SessionFactory sessionFactory;
 
     @Override
@@ -50,16 +48,30 @@ public class NoteRepositoryHibernateImpl implements NoteRepository {
     }
 
     @Override
-    public void update(long id, Note note) {
+    public int update(long id, Note note) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            Note noteToUpdate = session.get(Note.class, id);
-            noteToUpdate.setName(note.getName());
-            noteToUpdate.setContent(note.getContent());
-            session.update(noteToUpdate);
+                int updatedRows = session.createQuery(
+                                "update Note n " +
+                                        "set name = :name, " +
+                                        "content = :content " +
+                                        "where n.id = :id"
+                        )
+                        .setParameter("name", note.getName())
+                        .setParameter("content", note.getContent())
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+
+                return updatedRows;
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 

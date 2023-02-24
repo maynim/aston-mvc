@@ -8,7 +8,6 @@ import ru.maynim.astonmvc.entity.Role;
 import ru.maynim.astonmvc.entity.User;
 import ru.maynim.astonmvc.repository.UserRepository;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,20 +15,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserRepositoryHibernateImpl implements UserRepository {
 
-    private final Connection connection;
     private final SessionFactory sessionFactory;
 
     @Override
     public List<User> findAll() {
         List<User> findUserList;
+
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            findUserList = session.createQuery("select u from User u", User.class)
-                    .getResultList();
+                findUserList = session.createQuery("select u from User u", User.class).getResultList();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
+
         return findUserList;
     }
 
@@ -49,19 +54,36 @@ public class UserRepositoryHibernateImpl implements UserRepository {
     }
 
     @Override
-    public void update(long id, User user) {
+    public int update(long id, User user) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            User userToUpdate = session.get(User.class, id);
-            userToUpdate.setEmail(user.getEmail());
-            userToUpdate.setUsername(user.getUsername());
-            userToUpdate.setBirthDate(user.getBirthDate());
-            userToUpdate.setFirstName(user.getFirstName());
-            userToUpdate.setLastName(user.getLastName());
-            session.update(userToUpdate);
+                int updatedRows = session.createQuery(
+                                "update User u " +
+                                        "set email = :email, " +
+                                        "username = :username, " +
+                                        "birthDate = :birthDate, " +
+                                        "firstName = :firstName, " +
+                                        "lastName = :lastName " +
+                                        "where u.id = :id"
+                        )
+                        .setParameter("email", user.getEmail())
+                        .setParameter("username", user.getUsername())
+                        .setParameter("birthDate", user.getBirthDate())
+                        .setParameter("firstName", user.getFirstName())
+                        .setParameter("lastName", user.getLastName())
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+
+                return updatedRows;
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
@@ -96,7 +118,7 @@ public class UserRepositoryHibernateImpl implements UserRepository {
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
 
-            findUserList = session.createQuery("select г from User г join fetch г.roles", User.class)
+            findUserList = session.createQuery("select distinct u from User u join fetch u.roles", User.class)
                     .getResultList();
 
             session.getTransaction().commit();
@@ -114,7 +136,7 @@ public class UserRepositoryHibernateImpl implements UserRepository {
 
             findUser = session.createQuery("select u from User u left join fetch u.roles where u.id = :id", User.class)
                     .setParameter("id", id)
-                    .getSingleResult();
+                    .uniqueResult();
 
             session.getTransaction().commit();
         }

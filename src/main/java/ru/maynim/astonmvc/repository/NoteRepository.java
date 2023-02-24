@@ -11,7 +11,7 @@ public interface NoteRepository {
 
     Optional<Note> findById(long id);
 
-    void update(long id, Note note);
+    int update(long id, Note note);
 
     void deleteById(long id);
 
