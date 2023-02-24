@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface FileRepository {
 
-    List<File> findAll();
+    List<File> findAllWithNotes();
 
     Optional<File> findById(long id);
 

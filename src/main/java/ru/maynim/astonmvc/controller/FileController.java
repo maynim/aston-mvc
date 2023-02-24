@@ -19,7 +19,7 @@ public class FileController {
 
     @GetMapping()
     public String findAllUsers(Model model) {
-        model.addAttribute("files", fileRepository.findAll());
+        model.addAttribute("files", fileRepository.findAllWithNotes());
         return "files/findAll";
     }
 
@@ -53,7 +53,7 @@ public class FileController {
 
     @GetMapping("/new")
     public String newNote(@ModelAttribute("file") File file, Model model) {
-        model.addAttribute("notes", noteRepository.findAll());
+        model.addAttribute("notes", noteRepository.findAllWithUsers());
         return "files/new";
     }
 

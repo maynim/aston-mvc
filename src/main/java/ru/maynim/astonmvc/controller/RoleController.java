@@ -16,7 +16,7 @@ public class RoleController {
 
     @GetMapping()
     public String findAllUsers(Model model) {
-        model.addAttribute("roles", roleRepository.findAll());
+        model.addAttribute("roles", roleRepository.findAllWithUsers());
         return "roles/findAll";
     }
 

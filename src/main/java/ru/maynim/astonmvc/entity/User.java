@@ -55,6 +55,10 @@ public class User {
     private List<Note> notes= new ArrayList<>();
 
     public void addRole(Role role) {
-        roles.add(role);
+        this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 }

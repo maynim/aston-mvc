@@ -20,7 +20,7 @@ public class NoteController {
 
     @GetMapping()
     public String findAllUsers(Model model) {
-        model.addAttribute("notes", noteRepository.findAll());
+        model.addAttribute("notes", noteRepository.findAllWithUsers());
         return "notes/findAll";
     }
 

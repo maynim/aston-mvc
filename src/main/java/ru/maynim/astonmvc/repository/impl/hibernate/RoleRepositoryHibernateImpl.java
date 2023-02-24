@@ -1,12 +1,12 @@
 package ru.maynim.astonmvc.repository.impl.hibernate;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Component;
 import ru.maynim.astonmvc.entity.Role;
 import ru.maynim.astonmvc.repository.RoleRepository;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,27 +14,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RoleRepositoryHibernateImpl implements RoleRepository {
 
-    private final Connection connection;
+    private final SessionFactory sessionFactory;
 
     @Override
-    public List<Role> findAll() {
-        List<Role> findRoleList = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSetOfRoles = statement.executeQuery("SELECT * FROM aston_trainee.dic_roles");
-            while (resultSetOfRoles.next()) {
-                Role role = Role.builder()
-                        .id(resultSetOfRoles.getLong("id"))
-                        .name(resultSetOfRoles.getString("name"))
-                        .description(resultSetOfRoles.getString("description"))
-                        .build();
+    public List<Role> findAllWithUsers() {
+        List<Role> findRoleList;
 
-                findRoleList.add(role);
-            }
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            findRoleList = session.createQuery("select r from Role r join fetch r.users", Role.class)
+                    .getResultList();
+
+            session.getTransaction().commit();
         }
+
         return findRoleList;
     }
 
@@ -42,22 +36,12 @@ public class RoleRepositoryHibernateImpl implements RoleRepository {
     public Optional<Role> findById(long id) {
         Role findRole;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM aston_trainee.dic_roles WHERE id = ?"
-            );
-            preparedStatement.setLong(1, id);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            ResultSet resultSetOfRole = preparedStatement.executeQuery();
-            resultSetOfRole.next();
+            findRole = session.get(Role.class, id);
 
-            findRole = Role.builder()
-                    .id(resultSetOfRole.getLong("id"))
-                    .name(resultSetOfRole.getString("name"))
-                    .description(resultSetOfRole.getString("description"))
-                    .build();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.getTransaction().commit();
         }
 
         return Optional.ofNullable(findRole);
@@ -65,48 +49,39 @@ public class RoleRepositoryHibernateImpl implements RoleRepository {
 
     @Override
     public void update(long id, Role role) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE aston_trainee.dic_roles\n" +
-                            "SET name = ?, description = ?" +
-                            "WHERE id = ?"
-            );
-            preparedStatement.setString(1, role.getName());
-            preparedStatement.setString(2, role.getDescription());
-            preparedStatement.setLong(3, id);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            Role roleToUpdate = session.get(Role.class, id);
+            roleToUpdate.setName(role.getName());
+            roleToUpdate.setDescription(role.getDescription());
+            session.update(roleToUpdate);
+
+            session.getTransaction().commit();
         }
     }
 
     @Override
     public void deleteById(long id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "DELETE FROM aston_trainee.dic_roles WHERE id = ?"
-            );
-            preparedStatement.setLong(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            session.createQuery("DELETE Role r WHERE r.id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+
+            session.getTransaction().commit();
         }
     }
 
     @Override
     public void save(Role role) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO aston_trainee.dic_roles (name, description) " +
-                            "VALUES(?,?)"
-            );
-            preparedStatement.setString(1, role.getName());
-            preparedStatement.setString(2, role.getDescription());
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.save(role);
+
+            session.getTransaction().commit();
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RoleRepository {
-    List<Role> findAll();
+    List<Role> findAllWithUsers();
 
     Optional<Role> findById(long id);
 

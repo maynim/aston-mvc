@@ -68,7 +68,7 @@ public class UserController {
 
     @GetMapping("/{id}/set-roles")
     public String setRoles(@PathVariable("id") long id, @ModelAttribute("role") Role role, Model model) {
-        model.addAttribute("rolesToSave", roleRepository.findAll());
+        model.addAttribute("rolesToSave", roleRepository.findAllWithUsers());
         model.addAttribute("id", id);
         return "users/set-roles";
     }

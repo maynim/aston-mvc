@@ -1,13 +1,14 @@
 package ru.maynim.astonmvc.repository.impl.hibernate;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Component;
 import ru.maynim.astonmvc.entity.Role;
 import ru.maynim.astonmvc.entity.User;
 import ru.maynim.astonmvc.repository.UserRepository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,29 +17,18 @@ import java.util.Optional;
 public class UserRepositoryHibernateImpl implements UserRepository {
 
     private final Connection connection;
+    private final SessionFactory sessionFactory;
 
     @Override
     public List<User> findAll() {
-        List<User> findUserList = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSetOfUsers = statement.executeQuery("SELECT * FROM aston_trainee.dat_users");
+        List<User> findUserList;
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            while (resultSetOfUsers.next()) {
-                User user = User.builder()
-                        .id(resultSetOfUsers.getLong("id"))
-                        .email(resultSetOfUsers.getString("email"))
-                        .username(resultSetOfUsers.getString("username"))
-                        .birthDate(resultSetOfUsers.getDate("birth_date").toLocalDate())
-                        .firstName(resultSetOfUsers.getString("first_name"))
-                        .lastName(resultSetOfUsers.getString("last_name"))
-                        .build();
+            findUserList = session.createQuery("select u from User u", User.class)
+                    .getResultList();
 
-                findUserList.add(user);
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.getTransaction().commit();
         }
         return findUserList;
     }
@@ -47,25 +37,12 @@ public class UserRepositoryHibernateImpl implements UserRepository {
     public Optional<User> findById(long id) {
         User findUser;
 
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT * FROM aston_trainee.dat_users WHERE id = ?"
-            );
-            preparedStatement.setLong(1, id);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
+            findUser = session.get(User.class, id);
 
-            findUser = User.builder()
-                    .id(resultSet.getLong("id"))
-                    .email(resultSet.getString("email"))
-                    .username(resultSet.getString("username"))
-                    .birthDate(resultSet.getDate("birth_date").toLocalDate())
-                    .firstName(resultSet.getString("first_name"))
-                    .lastName(resultSet.getString("last_name"))
-                    .build();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.getTransaction().commit();
         }
 
         return Optional.ofNullable(findUser);
@@ -73,115 +50,73 @@ public class UserRepositoryHibernateImpl implements UserRepository {
 
     @Override
     public void update(long id, User user) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE aston_trainee.dat_users\n" +
-                            "SET email = ?, username = ?, birth_date = ?, first_name = ?, last_name = ?\n" +
-                            "WHERE id = ?\n"
-            );
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getUsername());
-            preparedStatement.setDate(3, Date.valueOf(user.getBirthDate()));
-            preparedStatement.setString(4, user.getFirstName());
-            preparedStatement.setString(5, user.getLastName());
-            preparedStatement.setLong(6, id);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            User userToUpdate = session.get(User.class, id);
+            userToUpdate.setEmail(user.getEmail());
+            userToUpdate.setUsername(user.getUsername());
+            userToUpdate.setBirthDate(user.getBirthDate());
+            userToUpdate.setFirstName(user.getFirstName());
+            userToUpdate.setLastName(user.getLastName());
+            session.update(userToUpdate);
+
+            session.getTransaction().commit();
         }
     }
 
     @Override
     public void deleteById(long id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "DELETE FROM aston_trainee.dat_users WHERE id = ?"
-            );
-            preparedStatement.setLong(1, id);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            session.createQuery("DELETE User u WHERE u.id = :id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+
+            session.getTransaction().commit();
         }
     }
 
     @Override
     public void save(User user) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO aston_trainee.dat_users (email, username, birth_date, first_name, last_name) " +
-                            "VALUES(?,?,?,?,?)"
-            );
-            preparedStatement.setString(1, user.getEmail());
-            preparedStatement.setString(2, user.getUsername());
-            preparedStatement.setDate(3, Date.valueOf(user.getBirthDate()));
-            preparedStatement.setString(4, user.getFirstName());
-            preparedStatement.setString(5, user.getLastName());
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.save(user);
+
+            session.getTransaction().commit();
         }
     }
 
     @Override
     public List<User> findAllWithRoles() {
-        List<User> findUserList = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSetOfUsers = statement.executeQuery(
-                    "SELECT u.id as user_id, u.username, r.id as role_id, r.name FROM aston_trainee.dat_users u " +
-                            "INNER JOIN aston_trainee.lnk_dat_users_dic_roles lnk ON u.id = lnk.dat_users_id " +
-                            "INNER JOIN aston_trainee.dic_roles r on r.id = lnk.dic_roles_id");
-            while (resultSetOfUsers.next()) {
-                Role role = Role.builder()
-                        .id(resultSetOfUsers.getLong("role_id"))
-                        .name(resultSetOfUsers.getString("name"))
-                        .build();
-                User user = User.builder()
-                        .id(resultSetOfUsers.getLong("user_id"))
-                        .username(resultSetOfUsers.getString("username"))
-                        .roles(List.of(role))
-                        .build();
-                findUserList.add(user);
-            }
+        List<User> findUserList;
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            findUserList = session.createQuery("select г from User г join fetch г.roles", User.class)
+                    .getResultList();
+
+            session.getTransaction().commit();
         }
+
         return findUserList;
     }
 
     @Override
     public Optional<User> findByIdWithRoles(long id) {
-        User findUser = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT u.*, r.name FROM aston_trainee.dat_users u " +
-                            "LEFT JOIN aston_trainee.lnk_dat_users_dic_roles lnk ON u.id = lnk.dat_users_id " +
-                            "LEFT JOIN aston_trainee.dic_roles r ON r.id = lnk.dic_roles_id " +
-                            "WHERE u.id = ?"
-            );
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        User findUser;
 
-            while (resultSet.next()) {
-                if (findUser == null) {
-                    findUser = User.builder()
-                            .id(resultSet.getLong("id"))
-                            .email(resultSet.getString("email"))
-                            .username(resultSet.getString("username"))
-                            .birthDate(resultSet.getDate("birth_date").toLocalDate())
-                            .firstName(resultSet.getString("first_name"))
-                            .lastName(resultSet.getString("last_name"))
-                            .build();
-                }
-                findUser.addRole(Role.builder()
-                        .name(resultSet.getString("name"))
-                        .build());
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            findUser = session.createQuery("select u from User u left join fetch u.roles where u.id = :id", User.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+
+            session.getTransaction().commit();
         }
 
         return Optional.ofNullable(findUser);
@@ -189,18 +124,35 @@ public class UserRepositoryHibernateImpl implements UserRepository {
 
     @Override
     public void addRole(long id, Role role) {
-        try {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        "INSERT INTO aston_trainee.lnk_dat_users_dic_roles (dat_users_id, dic_roles_id) " +
-                                "VALUES (?, ?)"
-                );
-                preparedStatement.setLong(1, id);
-                preparedStatement.setLong(2, role.getId());
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-                preparedStatement.executeUpdate();
+            User userForAddNewRole = session.get(User.class, id);
+            userForAddNewRole.addRole(role);
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            session.update(userForAddNewRole);
+
+            session.getTransaction().commit();
+        }
+    }
+
+    @Override
+    public void deleteRole(long userId, long roleId) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            User userWithRoles = session.createQuery(
+                            "select u from User u left join fetch u.roles where u.id = :id",
+                            User.class
+                    )
+                    .setParameter("id", userId)
+                    .getSingleResult();
+
+            Role roleForRemove = session.get(Role.class, roleId);
+
+            userWithRoles.removeRole(roleForRemove);
+
+            session.getTransaction().commit();
         }
     }
 

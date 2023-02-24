@@ -25,4 +25,6 @@ public interface UserRepository {
     Optional<User> findByIdWithRoles(long id);
 
     void addRole(long id, Role role);
+
+    void deleteRole(long userId, long roleId);
 }

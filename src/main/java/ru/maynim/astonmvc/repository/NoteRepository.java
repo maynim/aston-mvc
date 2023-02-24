@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface NoteRepository {
 
-    List<Note> findAll();
+    List<Note> findAllWithUsers();
 
     Optional<Note> findById(long id);
 
