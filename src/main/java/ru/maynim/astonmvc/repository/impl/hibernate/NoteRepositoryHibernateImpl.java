@@ -21,12 +21,18 @@ public class NoteRepositoryHibernateImpl implements NoteRepository {
         List<Note> findNoteList;
 
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            findNoteList = session.createQuery("select n from Note n join fetch n.user", Note.class)
-                    .getResultList();
+                findNoteList = session.createQuery("select n from Note n join fetch n.user", Note.class)
+                        .getResultList();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
 
         return findNoteList;
@@ -78,24 +84,36 @@ public class NoteRepositoryHibernateImpl implements NoteRepository {
     @Override
     public void deleteById(long id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.createQuery("DELETE Note n WHERE n.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
+                session.createQuery("DELETE Note n WHERE n.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public void save(Note note) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.save(note);
+                session.save(note);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 }

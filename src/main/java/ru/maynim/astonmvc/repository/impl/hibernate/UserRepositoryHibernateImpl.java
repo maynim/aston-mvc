@@ -90,24 +90,36 @@ public class UserRepositoryHibernateImpl implements UserRepository {
     @Override
     public void deleteById(long id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.createQuery("DELETE User u WHERE u.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
+                session.createQuery("DELETE User u WHERE u.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public void save(User user) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.save(user);
+                session.save(user);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
@@ -147,34 +159,46 @@ public class UserRepositoryHibernateImpl implements UserRepository {
     @Override
     public void addRole(long id, Role role) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            User userForAddNewRole = session.get(User.class, id);
-            userForAddNewRole.addRole(role);
+                User userForAddNewRole = session.get(User.class, id);
+                userForAddNewRole.addRole(role);
 
-            session.update(userForAddNewRole);
+                session.update(userForAddNewRole);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public void deleteRole(long userId, long roleId) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            User userWithRoles = session.createQuery(
-                            "select u from User u left join fetch u.roles where u.id = :id",
-                            User.class
-                    )
-                    .setParameter("id", userId)
-                    .getSingleResult();
+                User userWithRoles = session.createQuery(
+                                "select u from User u left join fetch u.roles where u.id = :id",
+                                User.class
+                        )
+                        .setParameter("id", userId)
+                        .getSingleResult();
 
-            Role roleForRemove = session.get(Role.class, roleId);
+                Role roleForRemove = session.get(Role.class, roleId);
 
-            userWithRoles.removeRole(roleForRemove);
+                userWithRoles.removeRole(roleForRemove);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
