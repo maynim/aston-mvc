@@ -78,24 +78,36 @@ public class RoleRepositoryHibernateImpl implements RoleRepository {
     @Override
     public void deleteById(long id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.createQuery("DELETE Role r WHERE r.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
+                session.createQuery("DELETE Role r WHERE r.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public void save(Role role) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.save(role);
+                session.save(role);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 

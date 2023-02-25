@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import ru.maynim.astonmvc.entity.File;
 import ru.maynim.astonmvc.repository.FileRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,41 +78,59 @@ public class FileRepositoryHibernateImpl implements FileRepository {
     @Override
     public void deleteById(long id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.createQuery("DELETE File f WHERE f.id = :id")
-                    .setParameter("id", id)
-                    .executeUpdate();
+                session.createQuery("DELETE File f WHERE f.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public void save(File file) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            session.save(file);
+                session.save(file);
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
     }
 
     @Override
     public List<File> findAllByNoteId(long id) {
-        List<File> findFileList = new ArrayList<>();
+        List<File> findFileList;
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
+            try {
+                session.beginTransaction();
 
-            findFileList = session.createQuery(
-                            "select f from File f join fetch f.note where f.note.id = :id",
-                            File.class
-                    )
-                    .setParameter("id", id)
-                    .getResultList();
+                findFileList = session.createQuery(
+                                "select f from File f join fetch f.note where f.note.id = :id",
+                                File.class
+                        )
+                        .setParameter("id", id)
+                        .getResultList();
 
-            session.getTransaction().commit();
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                session.getTransaction().rollback();
+
+                throw e;
+            }
         }
         return findFileList;
     }
